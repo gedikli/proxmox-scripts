@@ -76,7 +76,7 @@ step_start "Rust" "Installing" "Installed"
     fi
   fi
   
-  os_fetch -O ./rustup-init https://static.rust-lang.org/rustup/archive/1.26.0/$_rustArch/rustup-init
+  os_fetch -O ./rustup-init https://static.rust-lang.org/rustup/archive/1.28.2/$_rustArch/rustup-init
   chmod +x ./rustup-init
   ./rustup-init -q -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host $_rustArch &>$__OUTPUT
   rm ./rustup-init
@@ -217,8 +217,8 @@ step_start "Nginx Proxy Manager" "Downloading" "Downloaded"
 
 step_start "Enviroment" "Setting up" "Setup"
   # Update NPM version in package.json files
-  sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$NPM_VERSION\"/" backend/package.json
-  sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$NPM_VERSION\"/" frontend/package.json
+  sed -i "s/\"version\": \"2.0.0\"/\"version\": \"$NPM_VERSION\"/" backend/package.json
+  sed -i "s/\"version\": \"2.0.0\"/\"version\": \"$NPM_VERSION\"/" frontend/package.json
   
   # Fix nginx config files for use with openresty defaults
   sed -i 's/user npm/user root/g; s/^pid/#pid/g; s+^daemon+#daemon+g' docker/rootfs/etc/nginx/nginx.conf
@@ -270,10 +270,9 @@ step_start "Enviroment" "Setting up" "Setup"
   echo resolver "$(awk 'BEGIN{ORS=" "} $1=="nameserver" { sub(/%.*$/,"",$2); print ($2 ~ ":")? "["$2"]": $2}' /etc/resolv.conf) valid=10s;" > /etc/nginx/conf.d/include/resolvers.conf
 
   # Copy app files
-  mkdir -p /app/global /app/frontend/images
+  mkdir -p  /app/frontend/images
   cp -r backend/* /app
-  cp -r global/* /app/global
-
+  
 step_start "Frontend" "Building" "Built"
   cd ./frontend
   export NODE_ENV=development
@@ -281,7 +280,7 @@ step_start "Frontend" "Building" "Built"
   yarn install --silent --network-timeout=30000 >$__OUTPUT 
   yarn build >$__OUTPUT 
   cp -r dist/* /app/frontend
-  cp -r app-images/* /app/frontend/images
+  cp -r public/images/* /app/frontend/images
 
 step_start "Backend" "Initializing" "Initialized"
   rm -rf /app/config/default.json &>$__OUTPUT
